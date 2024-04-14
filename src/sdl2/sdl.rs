@@ -7,6 +7,7 @@ use std::mem::transmute;
 use std::os::raw::c_void;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
+use crate::common::SdlErrorString;
 use crate::sys;
 
 #[repr(i32)]
@@ -79,7 +80,7 @@ pub struct Sdl {
 impl Sdl {
     #[inline]
     #[doc(alias = "SDL_Init")]
-    fn new() -> Result<Sdl, String> {
+    fn new() -> Result<Sdl, SdlErrorString> {
         // Check if we can safely initialize SDL on this thread.
         let was_main_thread_declared = IS_MAIN_THREAD_DECLARED.swap(true, Ordering::SeqCst);
 
@@ -104,7 +105,7 @@ impl Sdl {
 
             if result != 0 {
                 SDL_COUNT.store(0, Ordering::Relaxed);
-                return Err(get_error());
+                return Err(get_error().into());
             }
         }
 
@@ -383,7 +384,7 @@ pub fn get_platform() -> &'static str {
 /// ```
 #[inline]
 #[doc(alias = "SDL_GetError")]
-pub fn init() -> Result<Sdl, String> {
+pub fn init() -> Result<Sdl, SdlErrorString> {
     Sdl::new()
 }
 
