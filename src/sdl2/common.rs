@@ -1,6 +1,29 @@
 use std::error::Error;
 use std::fmt;
 
+#[cfg(not(feature = "no_more_string_error"))]
+pub type SdlErrorString = String;
+#[cfg(feature = "no_more_string_error")]
+#[derive(Debug)]
+pub struct SdlErrorString(String);
+
+#[cfg(feature = "no_more_string_error")]
+impl From<String> for SdlErrorString {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
+#[cfg(feature = "no_more_string_error")]
+impl fmt::Display for SdlErrorString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "SDL error: {}", self.0)
+    }
+}
+
+#[cfg(feature = "no_more_string_error")]
+impl Error for SdlErrorString {}
+
 /// A given integer was so big that its representation as a C integer would be
 /// negative.
 #[derive(Debug, Clone, PartialEq)]

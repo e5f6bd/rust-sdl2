@@ -56,6 +56,8 @@ use_mac_framework = ["sdl2-sys/use_mac_framework"]
 bundled = ["sdl2-sys/bundled"]
 static-link = ["sdl2-sys/static-link"]
 
+no_more_string_error = []
+
 [package.metadata.docs.rs]
 features = ["default", "gfx", "mixer", "image", "ttf"]
 
