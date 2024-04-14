@@ -118,49 +118,49 @@ impl Sdl {
 
     /// Initializes the audio subsystem.
     #[inline]
-    pub fn audio(&self) -> Result<AudioSubsystem, String> {
+    pub fn audio(&self) -> Result<AudioSubsystem, SdlErrorString> {
         AudioSubsystem::new(self)
     }
 
     /// Initializes the event subsystem.
     #[inline]
-    pub fn event(&self) -> Result<EventSubsystem, String> {
+    pub fn event(&self) -> Result<EventSubsystem, SdlErrorString> {
         EventSubsystem::new(self)
     }
 
     /// Initializes the joystick subsystem.
     #[inline]
-    pub fn joystick(&self) -> Result<JoystickSubsystem, String> {
+    pub fn joystick(&self) -> Result<JoystickSubsystem, SdlErrorString> {
         JoystickSubsystem::new(self)
     }
 
     /// Initializes the haptic subsystem.
     #[inline]
-    pub fn haptic(&self) -> Result<HapticSubsystem, String> {
+    pub fn haptic(&self) -> Result<HapticSubsystem, SdlErrorString> {
         HapticSubsystem::new(self)
     }
 
     /// Initializes the game controller subsystem.
     #[inline]
-    pub fn game_controller(&self) -> Result<GameControllerSubsystem, String> {
+    pub fn game_controller(&self) -> Result<GameControllerSubsystem, SdlErrorString> {
         GameControllerSubsystem::new(self)
     }
 
     /// Initializes the game controller subsystem.
     #[inline]
-    pub fn sensor(&self) -> Result<SensorSubsystem, String> {
+    pub fn sensor(&self) -> Result<SensorSubsystem, SdlErrorString> {
         SensorSubsystem::new(self)
     }
 
     /// Initializes the timer subsystem.
     #[inline]
-    pub fn timer(&self) -> Result<TimerSubsystem, String> {
+    pub fn timer(&self) -> Result<TimerSubsystem, SdlErrorString> {
         TimerSubsystem::new(self)
     }
 
     /// Initializes the video subsystem.
     #[inline]
-    pub fn video(&self) -> Result<VideoSubsystem, String> {
+    pub fn video(&self) -> Result<VideoSubsystem, SdlErrorString> {
         VideoSubsystem::new(self)
     }
 
@@ -170,7 +170,7 @@ impl Sdl {
     /// If this function is called while an `EventPump` instance is alive, the function will return
     /// an error.
     #[inline]
-    pub fn event_pump(&self) -> Result<EventPump, String> {
+    pub fn event_pump(&self) -> Result<EventPump, SdlErrorString> {
         EventPump::new(self)
     }
 
@@ -234,7 +234,7 @@ macro_rules! subsystem {
         impl $name {
             #[inline]
             #[doc(alias = "SDL_InitSubSystem")]
-            fn new(sdl: &Sdl) -> Result<$name, String> {
+            fn new(sdl: &Sdl) -> Result<$name, SdlErrorString> {
                 if $counter.fetch_add(1, Ordering::Relaxed) == 0 {
                     let result;
 
@@ -244,7 +244,7 @@ macro_rules! subsystem {
 
                     if result != 0 {
                         $counter.store(0, Ordering::Relaxed);
-                        return Err(get_error());
+                        return Err(get_error().into());
                     }
                 }
 
@@ -339,10 +339,10 @@ impl EventPump {
     /// Obtains the SDL event pump.
     #[inline]
     #[doc(alias = "SDL_InitSubSystem")]
-    fn new(sdl: &Sdl) -> Result<EventPump, String> {
+    fn new(sdl: &Sdl) -> Result<EventPump, SdlErrorString> {
         // Called on the main SDL thread.
         if IS_EVENT_PUMP_ALIVE.load(Ordering::Relaxed) {
-            Err("an `EventPump` instance is already alive - there can only be one `EventPump` in use at a time.".to_owned())
+            Err("an `EventPump` instance is already alive - there can only be one `EventPump` in use at a time.".to_owned().into())
         } else {
             let _event_subsystem = sdl.event()?;
             IS_EVENT_PUMP_ALIVE.store(true, Ordering::Relaxed);
