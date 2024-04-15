@@ -4,6 +4,7 @@ use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::rc::Rc;
 
+use crate::common::SdlErrorString;
 use crate::get_error;
 use crate::pixels;
 use crate::rect::Rect;
@@ -307,7 +308,7 @@ impl<'a> Surface<'a> {
     /// The only change is this case is that `Canvas` has a
     /// better API to draw stuff in the `Surface` in that case, but don't expect any performance
     /// changes, there will be none.
-    pub fn into_canvas(self) -> Result<Canvas<Surface<'a>>, String> {
+    pub fn into_canvas(self) -> Result<Canvas<Surface<'a>>, SdlErrorString> {
         Canvas::from_surface(self)
     }
 
