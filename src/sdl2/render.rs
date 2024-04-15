@@ -28,7 +28,7 @@
 //! None of the draw methods in `Canvas` are expected to fail.
 //! If they do, a panic is raised and the program is aborted.
 
-use crate::common::{validate_int, IntegerOrSdlError};
+use crate::common::{validate_int, IntegerOrSdlError, SdlErrorString};
 use crate::get_error;
 use crate::pixels;
 use crate::pixels::PixelFormatEnum;
@@ -55,29 +55,11 @@ use crate::sys;
 use crate::sys::SDL_BlendMode;
 use crate::sys::SDL_TextureAccess;
 
-/// Contains the description of an error returned by SDL
-#[derive(Debug, Clone)]
-pub struct SdlError(String);
-
 /// Possible errors returned by targeting a `Canvas` to render to a `Texture`
 #[derive(Debug, Clone)]
 pub enum TargetRenderError {
-    SdlError(SdlError),
+    SdlError(SdlErrorString),
     NotSupported,
-}
-
-impl fmt::Display for SdlError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let &SdlError(ref e) = self;
-        write!(f, "SDL error: {}", e)
-    }
-}
-
-impl Error for SdlError {
-    fn description(&self) -> &str {
-        let &SdlError(ref e) = self;
-        e
-    }
 }
 
 impl fmt::Display for TargetRenderError {
@@ -86,16 +68,6 @@ impl fmt::Display for TargetRenderError {
         match *self {
             SdlError(ref e) => e.fmt(f),
             NotSupported => write!(f, "The renderer does not support the use of render targets"),
-        }
-    }
-}
-
-impl Error for TargetRenderError {
-    fn description(&self) -> &str {
-        use self::TargetRenderError::*;
-        match *self {
-            SdlError(self::SdlError(ref e)) => e.as_str(),
-            NotSupported => "The renderer does not support the use of render targets",
         }
     }
 }
@@ -254,11 +226,14 @@ impl<T> RendererContext<T> {
         }
     }
 
-    unsafe fn set_raw_target(&self, raw_texture: *mut sys::SDL_Texture) -> Result<(), SdlError> {
+    unsafe fn set_raw_target(
+        &self,
+        raw_texture: *mut sys::SDL_Texture,
+    ) -> Result<(), SdlErrorString> {
         if sys::SDL_SetRenderTarget(self.raw, raw_texture) == 0 {
             Ok(())
         } else {
-            Err(SdlError(get_error()))
+            Err(get_error().into())
         }
     }
 

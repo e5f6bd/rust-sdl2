@@ -4,7 +4,8 @@ use std::fmt;
 #[cfg(not(feature = "no_more_string_error"))]
 pub type SdlErrorString = String;
 #[cfg(feature = "no_more_string_error")]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
+/// Contains the description of an error returned by SDL
 pub struct SdlErrorString(String);
 
 #[cfg(feature = "no_more_string_error")]
@@ -22,7 +23,11 @@ impl fmt::Display for SdlErrorString {
 }
 
 #[cfg(feature = "no_more_string_error")]
-impl Error for SdlErrorString {}
+impl Error for SdlErrorString {
+    fn description(&self) -> &str {
+        &self.0
+    }
+}
 
 /// A given integer was so big that its representation as a C integer would be
 /// negative.
