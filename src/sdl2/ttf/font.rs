@@ -13,6 +13,8 @@ use surface::Surface;
 use sys::ttf;
 use sys::SDL_Surface;
 
+use crate::common::SdlErrorString;
+
 bitflags! {
     /// The styling of a font.
     pub struct FontStyle: i32 {
@@ -258,12 +260,12 @@ impl<'ttf, 'r> Drop for Font<'ttf, 'r> {
 pub fn internal_load_font<'ttf, P: AsRef<Path>>(
     path: P,
     ptsize: u16,
-) -> Result<Font<'ttf, 'static>, String> {
+) -> Result<Font<'ttf, 'static>, SdlErrorString> {
     unsafe {
         let cstring = CString::new(path.as_ref().to_str().unwrap()).unwrap();
         let raw = ttf::TTF_OpenFont(cstring.as_ptr(), ptsize as c_int);
         if raw.is_null() {
-            Err(get_error())
+            Err(get_error().into())
         } else {
             Ok(Font {
                 raw: raw,
@@ -291,12 +293,12 @@ pub fn internal_load_font_at_index<'ttf, P: AsRef<Path>>(
     path: P,
     index: u32,
     ptsize: u16,
-) -> Result<Font<'ttf, 'static>, String> {
+) -> Result<Font<'ttf, 'static>, SdlErrorString> {
     unsafe {
         let cstring = CString::new(path.as_ref().to_str().unwrap().as_bytes()).unwrap();
         let raw = ttf::TTF_OpenFontIndex(cstring.as_ptr(), ptsize as c_int, index as c_long);
         if raw.is_null() {
-            Err(get_error())
+            Err(get_error().into())
         } else {
             Ok(Font {
                 raw: raw,

@@ -8,6 +8,8 @@ use std::path::Path;
 use sys::ttf;
 use version::Version;
 
+use crate::common::SdlErrorString;
+
 use super::font::{
     internal_load_font, internal_load_font_at_index, internal_load_font_from_ll, Font,
 };
@@ -31,7 +33,7 @@ impl Sdl2TtfContext {
         &'ttf self,
         path: P,
         point_size: u16,
-    ) -> Result<Font<'ttf, 'static>, String> {
+    ) -> Result<Font<'ttf, 'static>, SdlErrorString> {
         internal_load_font(path, point_size)
     }
 
@@ -42,7 +44,7 @@ impl Sdl2TtfContext {
         path: P,
         index: u32,
         point_size: u16,
-    ) -> Result<Font<'ttf, 'static>, String> {
+    ) -> Result<Font<'ttf, 'static>, SdlErrorString> {
         internal_load_font_at_index(path, index, point_size)
     }
 
@@ -52,10 +54,10 @@ impl Sdl2TtfContext {
         &'ttf self,
         rwops: RWops<'r>,
         point_size: u16,
-    ) -> Result<Font<'ttf, 'r>, String> {
+    ) -> Result<Font<'ttf, 'r>, SdlErrorString> {
         let raw = unsafe { ttf::TTF_OpenFontRW(rwops.raw(), 0, point_size as c_int) };
         if (raw as *mut ()).is_null() {
-            Err(get_error())
+            Err(get_error().into())
         } else {
             Ok(internal_load_font_from_ll(raw, Some(rwops)))
         }
@@ -68,12 +70,12 @@ impl Sdl2TtfContext {
         rwops: RWops<'r>,
         index: u32,
         point_size: u16,
-    ) -> Result<Font<'ttf, 'r>, String> {
+    ) -> Result<Font<'ttf, 'r>, SdlErrorString> {
         let raw = unsafe {
             ttf::TTF_OpenFontIndexRW(rwops.raw(), 0, point_size as c_int, index as c_long)
         };
         if (raw as *mut ()).is_null() {
-            Err(get_error())
+            Err(get_error().into())
         } else {
             Ok(internal_load_font_from_ll(raw, Some(rwops)))
         }
