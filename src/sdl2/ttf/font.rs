@@ -62,6 +62,7 @@ pub enum FontError {
 impl error::Error for FontError {
     fn description(&self) -> &str {
         match *self {
+            #[allow(deprecated)]
             FontError::InvalidLatin1Text(ref error) => error.description(),
             FontError::SdlError(ref message) => message,
         }
@@ -78,6 +79,7 @@ impl error::Error for FontError {
 impl fmt::Display for FontError {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match *self {
+            #[allow(deprecated)]
             FontError::InvalidLatin1Text(ref err) => {
                 write!(f, "Invalid Latin-1 bytes: {}", err.description())
             }
