@@ -2,7 +2,7 @@ use crate::sys;
 use crate::sys::SDL_JoystickPowerLevel;
 
 use crate::clear_error;
-use crate::common::{validate_int, IntegerOrSdlError};
+use crate::common::{validate_int, IntegerOrSdlError, SdlErrorString};
 use crate::get_error;
 use crate::JoystickSubsystem;
 use libc::c_char;
@@ -12,13 +12,13 @@ use std::fmt::{Display, Error, Formatter};
 impl JoystickSubsystem {
     /// Retrieve the total number of attached joysticks *and* controllers identified by SDL.
     #[doc(alias = "SDL_NumJoysticks")]
-    pub fn num_joysticks(&self) -> Result<u32, String> {
+    pub fn num_joysticks(&self) -> Result<u32, SdlErrorString> {
         let result = unsafe { sys::SDL_NumJoysticks() };
 
         if result >= 0 {
             Ok(result as u32)
         } else {
-            Err(get_error())
+            Err(get_error().into())
         }
     }
 
