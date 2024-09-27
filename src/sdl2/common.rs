@@ -23,11 +23,7 @@ impl fmt::Display for SdlErrorString {
 }
 
 #[cfg(feature = "no_more_string_error")]
-impl Error for SdlErrorString {
-    fn description(&self) -> &str {
-        &self.0
-    }
-}
+impl Error for SdlErrorString {}
 
 /// A given integer was so big that its representation as a C integer would be
 /// negative.
@@ -64,13 +60,4 @@ impl fmt::Display for IntegerOrSdlError {
     }
 }
 
-impl Error for IntegerOrSdlError {
-    fn description(&self) -> &str {
-        use self::IntegerOrSdlError::*;
-
-        match *self {
-            IntegerOverflows(_, _) => "integer overflow",
-            SdlError(ref e) => e,
-        }
-    }
-}
+impl Error for IntegerOrSdlError {}
